@@ -12,9 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { QRCodeHover } from "@/components/ui/qr-code-hover";
-import { AlertTriangle, ArrowUpDown } from "lucide-react";
+// import { QRCodeHover } from "@/components/ui/qr-code-hover";
+import { AlertTriangle, ArrowUpDown, Minus, Plus } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
+import { useProductStore } from "../useProductStore";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 type SortableHeaderProps = {
   column: Column<Product, unknown>;
@@ -101,14 +104,68 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => <SortableHeader column={column} label="Cantidad" />,
     cell: ({ row }) => {
       const quantity = row.original.quantity;
+      const productId = row.original.id;
       const isLowStock = quantity > 0 && quantity < 10;
       const isOutOfStock = quantity === 0;
+      const updateProductQuantity = useProductStore((state) => state.updateProductQuantity);
+      const { toast } = useToast();
+
+      const handleIncrement = async () => {
+        const result = await updateProductQuantity(productId, quantity + 1);
+        if (result.success) {
+          toast({
+            title: "Cantidad actualizada",
+            description: `La cantidad se incrementó a ${quantity + 1}`,
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "No se pudo actualizar la cantidad",
+            variant: "destructive",
+          });
+        }
+      };
+
+      const handleDecrement = async () => {
+        if (quantity > 0) {
+          const result = await updateProductQuantity(productId, quantity - 1);
+          if (result.success) {
+            toast({
+              title: "Cantidad actualizada",
+              description: `La cantidad se decrementó a ${quantity - 1}`,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "No se pudo actualizar la cantidad",
+              variant: "destructive",
+            });
+          }
+        }
+      };
 
       return (
         <div className="flex items-center gap-2">
-          <span className={isLowStock || isOutOfStock ? "font-semibold" : ""}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleDecrement}
+            disabled={quantity === 0}
+          >
+            <Minus className="h-3 w-3" />
+          </Button>
+          <span className={`min-w-[2rem] text-center ${isLowStock || isOutOfStock ? "font-semibold" : ""}`}>
             {quantity}
           </span>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleIncrement}
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
           {isLowStock && (
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           )}
