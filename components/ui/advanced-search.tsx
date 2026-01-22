@@ -117,7 +117,7 @@ export function AdvancedSearch({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search products by name, SKU, category, or supplier..."
+              placeholder="Buscar productos por nombre, SKU, categoría..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-10"
@@ -151,9 +151,9 @@ export function AdvancedSearch({
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="space-y-2">
-                <h4 className="font-medium">Saved Searches</h4>
+                <h4 className="font-medium">Búsquedas guardadas</h4>
                 {savedSearches.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No saved searches</p>
+                  <p className="text-sm text-muted-foreground">No hay búsquedas guardadas</p>
                 ) : (
                   <div className="space-y-1">
                     {savedSearches.map((search, index) => (
@@ -190,7 +190,7 @@ export function AdvancedSearch({
           <div className="flex flex-wrap gap-2">
             {query.trim() && (
               <Badge variant="secondary" className="flex items-center gap-1">
-                Query: {query}
+                Consulta: {query}
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setQuery("")}
@@ -218,7 +218,7 @@ export function AdvancedSearch({
           <div className="space-y-4 border-t pt-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <div>
-                <Label htmlFor="filter-field">Field</Label>
+                <Label htmlFor="filter-field">Campo</Label>
                 <select
                   id="filter-field"
                   value={newFilter.field}
@@ -235,7 +235,7 @@ export function AdvancedSearch({
                 </select>
               </div>
               <div>
-                <Label htmlFor="filter-operator">Operator</Label>
+                <Label htmlFor="filter-operator">Operador</Label>
                 <select
                   id="filter-operator"
                   value={newFilter.operator}
@@ -255,20 +255,20 @@ export function AdvancedSearch({
                 </select>
               </div>
               <div>
-                <Label htmlFor="filter-value">Value</Label>
+                <Label htmlFor="filter-value">Valor</Label>
                 <Input
                   id="filter-value"
                   value={newFilter.value}
                   onChange={(e) =>
                     setNewFilter({ ...newFilter, value: e.target.value })
                   }
-                  placeholder="Enter value..."
+                  placeholder="Ingrese valor..."
                   onKeyDown={(e) => e.key === "Enter" && handleAddFilter()}
                 />
               </div>
               <div className="flex items-end">
                 <Button onClick={handleAddFilter} className="w-full">
-                  Add Filter
+                  Añadir filtro
                 </Button>
               </div>
             </div>
@@ -285,22 +285,22 @@ export function AdvancedSearch({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Searching...
+                Buscando...
               </>
             ) : (
               <>
                 <Search className="mr-2 h-4 w-4" />
-                Search
+                Buscar
               </>
             )}
           </Button>
           <Button variant="outline" onClick={handleClear}>
-            Clear
+            Limpiar
           </Button>
           {onSaveSearch && (query.trim() || filters.length > 0) && (
             <Button variant="outline" onClick={handleSaveSearch}>
               <Save className="mr-2 h-4 w-4" />
-              Save
+              Guardar
             </Button>
           )}
         </div>
