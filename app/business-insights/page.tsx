@@ -21,6 +21,7 @@ import {
   TrendingDown,
   TrendingUp,
   Users,
+  Wallet,
 } from "lucide-react";
 import { useMemo } from "react";
 import {
@@ -54,13 +55,13 @@ export default function BusinessInsightsPage() {
   const analyticsData = useMemo(() => {
     if (!allProducts || allProducts.length === 0) {
       return {
-        totalReferenceTypes: 0, // Antes totalProducts
+        totalReferenceTypes: 0,
         totalValue: 0,
         lowStockItems: 0,
-        criticalStockItems: 0, // Nueva métrica para urgencias
+        criticalStockItems: 0,
         outOfStockItems: 0,
-        averageUnitCost: 0, // Reemplaza a averagePrice / valueDensity
-        totalUnits: 0, // Antes totalQuantity
+        averageUnitCost: 0,
+        totalUnits: 0,
         categoryDistribution: [],
         statusDistribution: [],
         priceRangeDistribution: [],
@@ -68,31 +69,28 @@ export default function BusinessInsightsPage() {
         topProducts: [],
         lowStockProducts: [],
         stockUtilization: 0,
-        unitsPerReference: 0, // Reemplaza stockCoverage
+        unitsPerReference: 0,
+        topCategory: { name: "N/A", value: 0, percentage: 0 },
       };
     }
 
-    // 1. Total de "Tipos" de producto (Referencias distintas: Tinte rojo, Champú X, Cera Y)
+    // 1. Total de "Tipos" de producto
     const totalReferenceTypes = allProducts.length;
 
-    // 2. Valor Total del Inventario (Dinero parado en la estantería)
+    // 2. Valor Total del Inventario
     const totalValue = allProducts.reduce((sum, product) => {
       return sum + product.price * Number(product.quantity);
     }, 0);
 
-    // 3. Cantidad Total de Unidades (Botes, tubos, cajas totales)
+    // 3. Cantidad Total de Unidades
     const totalUnits = allProducts.reduce((sum, product) => {
       return sum + Number(product.quantity);
     }, 0);
 
-    // 4. Coste Medio por Unidad (Métrica CRÍTICA para barberías)
-    // Responde: ¿Cuánto me cuesta de media un bote en mi estantería?
-    // Total Valor / Total Unidades físicas.
+    // 4. Coste Medio por Unidad
     const averageUnitCost = totalUnits > 0 ? totalValue / totalUnits : 0;
 
-    // 5. Lógica de Stock Bajo (Ajustada para barberías)
-    // Crítico: Menos de 3 unidades (Peligro de quedarse sin tinte a mitad de servicio)
-    // Bajo: Entre 3 y 10 unidades.
+    // 5. Lógica de Stock Bajo
     const criticalStockItems = allProducts.filter(
       (product) => Number(product.quantity) > 0 && Number(product.quantity) <= 3
     ).length;
@@ -106,10 +104,9 @@ export default function BusinessInsightsPage() {
     ).length;
 
     // 6. Unidades Promedio por Referencia
-    // ¿Tengo mucha profundidad de stock o poca?
     const unitsPerReference = totalReferenceTypes > 0 ? totalUnits / totalReferenceTypes : 0;
 
-    // Distribución por Categoría (Basada en Valor, para ver dónde gastas más dinero)
+    // Distribución por Categoría Y CÁLCULO DE CATEGORÍA TOP
     const categoryMap = new Map();
     allProducts.forEach((product) => {
       const category = product.category || "Sin Categoría";
@@ -128,18 +125,33 @@ export default function BusinessInsightsPage() {
     const categoryDistribution = Array.from(categoryMap.entries()).map(
       ([name, data]) => ({
         name,
-        value: data.value, // Gráfico basado en VALOR (€)
+        value: data.value,
         quantity: data.quantity,
         count: data.count,
       })
     );
 
-    // Price range distribution (Simplificado para productos de consumo)
+    // Encontrar la categoría con más valor invertido
+    let maxCategory = { name: "Ninguna", value: 0 };
+    categoryMap.forEach((data, name) => {
+        if (data.value > maxCategory.value) {
+            maxCategory = { name: name, value: data.value };
+        }
+    });
+    
+    const topCategory = {
+        name: maxCategory.name,
+        value: maxCategory.value,
+        percentage: totalValue > 0 ? (maxCategory.value / totalValue) * 100 : 0
+    };
+
+
+    // Price range distribution
     const priceRanges = [
-      { name: "€0-€10", min: 0, max: 10 }, // Consumibles baratos (oxidantes)
-      { name: "€10-€25", min: 10, max: 25 }, // Champús/Tintes premium
-      { name: "€25-€50", min: 25, max: 50 }, // Tratamientos
-      { name: "€50+", min: 50, max: Infinity }, // Packs o herramientas
+      { name: "€0-€10", min: 0, max: 10 },
+      { name: "€10-€20", min: 10, max: 20 },
+      { name: "€20-€50", min: 20, max: 50 },
+      { name: "€50+", min: 50, max: Infinity },
     ];
 
     const priceRangeDistribution = priceRanges.map((range) => ({
@@ -153,7 +165,6 @@ export default function BusinessInsightsPage() {
     // Status distribution
     const statusMap = new Map();
     allProducts.forEach((product) => {
-        // Calculamos estado basado en cantidad si no existe campo status
         let status = product.status;
         if (!status) {
             const qty = Number(product.quantity);
@@ -169,28 +180,14 @@ export default function BusinessInsightsPage() {
       ([name, value]) => ({ name, value })
     );
 
-    // CORRECTED: Monthly trend based on actual product creation dates
+    // Monthly trend
     const monthlyTrend: Array<{
       month: string;
       products: number;
       monthlyAdded: number;
     }> = [];
-    const months = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
-    ];
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    // Group products by creation month using UTC to avoid timezone issues
     const productsByMonth = new Map();
      allProducts.forEach((product) => {
        const date = new Date(product.createdAt);
@@ -207,20 +204,20 @@ export default function BusinessInsightsPage() {
      });
 
 
-    // Top Products: Ahora muestra los que tienen más DINERO INMOVILIZADO
+    // Top Products
     const topProducts = allProducts
       .sort((a, b) => (b.price * Number(b.quantity)) - (a.price * Number(a.quantity)))
       .slice(0, 5)
       .map((product) => ({
         name: product.name,
-        value: product.price * Number(product.quantity), // Valor total de ese producto
+        value: product.price * Number(product.quantity),
         quantity: Number(product.quantity),
       }));
 
-    // Low stock products (Prioriza mostrar los CRÍTICOS)
+    // Low stock products
     const lowStockProducts = allProducts
       .filter((product) => Number(product.quantity) > 0 && Number(product.quantity) <= 10)
-      .sort((a, b) => Number(a.quantity) - Number(b.quantity)) // Menor cantidad primero
+      .sort((a, b) => Number(a.quantity) - Number(b.quantity))
       .slice(0, 6);
 
     return {
@@ -232,6 +229,7 @@ export default function BusinessInsightsPage() {
       averageUnitCost,
       totalUnits,
       unitsPerReference,
+      topCategory,
       categoryDistribution,
       statusDistribution,
       priceRangeDistribution,
@@ -340,7 +338,7 @@ export default function BusinessInsightsPage() {
                       label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
-                      dataKey="value" // Usamos valor monetario, no cantidad
+                      dataKey="value" 
                     >
                       {analyticsData.categoryDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -431,8 +429,9 @@ export default function BusinessInsightsPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Additional Insights - REFORMULADO PARA BARBERÍA */}
+        {/* Additional Insights -  BARBERÍA */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Card 1: Costes */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -453,6 +452,7 @@ export default function BusinessInsightsPage() {
             </CardContent>
           </Card>
 
+          {/* Card 2: Salud */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -479,6 +479,33 @@ export default function BusinessInsightsPage() {
                   {analyticsData.unitsPerReference.toFixed(1)} uds.
                 </span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 3: Inversión Principal */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Wallet className="h-5 w-5" />
+                Inversión Principal
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Mayor Categoría</span>
+                <Badge variant="outline" className="font-semibold">
+                  {analyticsData.topCategory.name}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-muted-foreground">Valor Acumulado</span>
+                <span className="font-bold text-lg text-primary">
+                  €{analyticsData.topCategory.value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                 Representa el <strong>{analyticsData.topCategory.percentage.toFixed(0)}%</strong> de todo tu dinero invertido.
+              </p>
             </CardContent>
           </Card>
         </div>

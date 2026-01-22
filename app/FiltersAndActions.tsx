@@ -67,9 +67,20 @@ export default function FiltersAndActions({
       const supplierMatch =
         selectedSuppliers.length === 0 ||
         selectedSuppliers.includes(product.supplierId ?? "");
+      
+      // Calculate status dynamically based on quantity
+      let calculatedStatus = "";
+      if (product.quantity > 20) {
+        calculatedStatus = "Available";
+      } else if (product.quantity > 0 && product.quantity <= 20) {
+        calculatedStatus = "Stock Low";
+      } else {
+        calculatedStatus = "Stock Out";
+      }
+
       const statusMatch =
         selectedStatuses.length === 0 ||
-        selectedStatuses.includes(product.status ?? "");
+        selectedStatuses.includes(calculatedStatus);
       return searchMatch && categoryMatch && supplierMatch && statusMatch;
     });
   };
