@@ -20,6 +20,7 @@ interface ProductState {
   loadSuppliers: () => Promise<void>;
   addProduct: (product: Product) => Promise<{ success: boolean }>;
   updateProduct: (updatedProduct: Product) => Promise<{ success: boolean }>;
+  updateProductQuantity: (productId: string, newQuantity: number) => Promise<{ success: boolean }>;
   deleteProduct: (productId: string) => Promise<{ success: boolean }>;
   addCategory: (category: Category) => void;
   editCategory: (categoryId: string, newCategoryName: string) => void;
@@ -135,6 +136,32 @@ export const useProductStore = create<ProductState>((set) => ({
       return { success: false };
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  // Update product quantity only
+  updateProductQuantity: async (productId: string, newQuantity: number) => {
+    try {
+      const response = await axiosInstance.patch("/products", {
+        id: productId,
+        quantity: newQuantity,
+      });
+
+      const updatedProduct = response.data;
+
+      set((state) => ({
+        allProducts: state.allProducts.map((product) =>
+          product.id === updatedProduct.id ? updatedProduct : product
+        ),
+      }));
+
+      if (process.env.NODE_ENV === "development") {
+        console.log("Cantidad actualizada correctamente:", updatedProduct);
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Error al actualizar la cantidad:", error);
+      return { success: false };
     }
   },
 

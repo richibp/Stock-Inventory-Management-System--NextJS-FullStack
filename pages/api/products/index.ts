@@ -166,6 +166,45 @@ export default async function handler(
       }
       break;
 
+    case "PATCH":
+      try {
+        const { id, quantity } = req.body;
+
+        // Update only the quantity
+        const updatedProduct = await prisma.product.update({
+          where: { id },
+          data: {
+            quantity: BigInt(quantity) as any,
+          },
+        });
+
+        // Fetch category and supplier data for the response
+        const category = await prisma.category.findUnique({
+          where: { id: updatedProduct.categoryId },
+        });
+        const supplier = await prisma.supplier.findUnique({
+          where: { id: updatedProduct.supplierId },
+        });
+
+        res.status(200).json({
+          id: updatedProduct.id,
+          name: updatedProduct.name,
+          sku: updatedProduct.sku,
+          price: updatedProduct.price,
+          quantity: Number(updatedProduct.quantity),
+          status: updatedProduct.status,
+          userId: updatedProduct.userId,
+          categoryId: updatedProduct.categoryId,
+          supplierId: updatedProduct.supplierId,
+          createdAt: updatedProduct.createdAt.toISOString(),
+          category: category?.name || "Desconocido",
+          supplier: supplier?.name || "Desconocido",
+        });
+      } catch (error) {
+        res.status(500).json({ error: "Fallo al actualizar la cantidad" });
+      }
+      break;
+
     case "DELETE":
       try {
         const { id } = req.body;
@@ -181,7 +220,7 @@ export default async function handler(
       break;
 
     default:
-      res.setHeader("Allow", ["POST", "GET", "PUT", "DELETE"]);
+      res.setHeader("Allow", ["POST", "GET", "PUT", "PATCH", "DELETE"]);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
