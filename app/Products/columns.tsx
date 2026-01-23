@@ -1,18 +1,14 @@
 "use client";
 
 import { Product } from "@/app/types";
-import { Column, ColumnDef } from "@tanstack/react-table";
-//import { ReactNode } from "react";
-
+import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import ProductDropDown from "./ProductsDropDown";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// import { QRCodeHover } from "@/components/ui/qr-code-hover";
 import { AlertTriangle, ArrowUpDown, Minus, Plus, X } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { useProductStore } from "../useProductStore";
@@ -30,15 +26,16 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     isSorted === "asc"
       ? IoMdArrowUp
       : isSorted === "desc"
-        ? IoMdArrowDown
-        : ArrowUpDown;
+      ? IoMdArrowDown
+      : ArrowUpDown;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-start py-[14px] select-none cursor-pointer p-2 gap-1 ${isSorted && "text-primary"
-            }`}
+          className={`flex items-start py-[14px] select-none cursor-pointer p-2 gap-1 ${
+            isSorted && "text-primary"
+          }`}
           aria-label={`Sort by ${label}`}
         >
           {label}
@@ -46,18 +43,96 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="bottom">
-        {/* Ascending Sorting */}
         <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
           <IoMdArrowUp className="mr-2 h-4 w-4" />
           Ascendente
         </DropdownMenuItem>
-        {/* Descending Sorting */}
         <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
           <IoMdArrowDown className="mr-2 h-4 w-4" />
           Descendente
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+};
+
+const QuantityCell = ({ row }: { row: Row<Product> }) => {
+  const quantity = row.original.quantity;
+  const productId = row.original.id;
+  const isCriticalStock = quantity > 0 && quantity <= 3;
+  const isLowStock = quantity > 3 && quantity <= 5;
+  const isOutOfStock = quantity === 0;
+  
+  // Ahora los hooks están dentro de un componente válido
+  const updateProductQuantity = useProductStore((state) => state.updateProductQuantity);
+  const { toast } = useToast();
+
+  const handleIncrement = async () => {
+    const result = await updateProductQuantity(productId, quantity + 1);
+    if (result.success) {
+      toast({
+        title: "Cantidad actualizada",
+        description: `La cantidad se incrementó a ${quantity + 1}`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la cantidad",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDecrement = async () => {
+    if (quantity > 0) {
+      const result = await updateProductQuantity(productId, quantity - 1);
+      if (result.success) {
+        toast({
+          title: "Cantidad actualizada",
+          description: `La cantidad se decrementó a ${quantity - 1}`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar la cantidad",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleDecrement}
+        disabled={quantity === 0}
+      >
+        <Minus className="h-3 w-3" />
+      </Button>
+      <span
+        className={`min-w-[2rem] text-center ${
+          isLowStock || isOutOfStock || isCriticalStock ? "font-semibold" : ""
+        }`}
+      >
+        {quantity}
+      </span>
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleIncrement}
+      >
+        <Plus className="h-3 w-3" />
+      </Button>
+      {isCriticalStock && (
+        <AlertTriangle className="h-4 w-4 text-orange-500 fill-red-100" />
+      )}
+      {isLowStock && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+      {isOutOfStock && <X className="h-4 w-4 text-red-600" />}
+    </div>
   );
 };
 
@@ -102,83 +177,7 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "quantity",
     header: ({ column }) => <SortableHeader column={column} label="Cantidad" />,
-    cell: ({ row }) => {
-      const quantity = row.original.quantity;
-      const productId = row.original.id;
-      const isCriticalStock = quantity > 0 && quantity <= 3;
-      const isLowStock = quantity > 3 && quantity <= 5;
-      const isOutOfStock = quantity === 0;
-      const updateProductQuantity = useProductStore((state) => state.updateProductQuantity);
-      const { toast } = useToast();
-
-      const handleIncrement = async () => {
-        const result = await updateProductQuantity(productId, quantity + 1);
-        if (result.success) {
-          toast({
-            title: "Cantidad actualizada",
-            description: `La cantidad se incrementó a ${quantity + 1}`,
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "No se pudo actualizar la cantidad",
-            variant: "destructive",
-          });
-        }
-      };
-
-      const handleDecrement = async () => {
-        if (quantity > 0) {
-          const result = await updateProductQuantity(productId, quantity - 1);
-          if (result.success) {
-            toast({
-              title: "Cantidad actualizada",
-              description: `La cantidad se decrementó a ${quantity - 1}`,
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: "No se pudo actualizar la cantidad",
-              variant: "destructive",
-            });
-          }
-        }
-      };
-
-      return (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7"
-            onClick={handleDecrement}
-            disabled={quantity === 0}
-          >
-            <Minus className="h-3 w-3" />
-          </Button>
-          <span className={`min-w-[2rem] text-center ${isLowStock || isOutOfStock || isCriticalStock ? "font-semibold" : ""}`}>
-            {quantity}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7"
-            onClick={handleIncrement}
-          >
-            <Plus className="h-3 w-3" />
-          </Button>
-          {isCriticalStock && (
-            <AlertTriangle className="h-4 w-4 text-orange-500 fill-red-100" />
-          )}
-          {isLowStock && (
-            <AlertTriangle className="h-4 w-4 text-yellow-500" />
-          )}
-          {isOutOfStock && (
-            <X className="h-4 w-4 text-red-600" />
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => <QuantityCell row={row} />,
   },
   {
     accessorKey: "price",
@@ -228,35 +227,10 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "supplier",
     header: "Proveedor",
     cell: ({ row }) => {
-      const supplierName = row.original.supplier; // Display supplier name
+      const supplierName = row.original.supplier;
       return <span>{supplierName || "Desconocido"}</span>;
     },
   },
-  // {
-  //   id: "qrCode",
-  //   header: "Código QR",
-  //   cell: ({ row }) => {
-  //     const product = row.original;
-  //     const qrData = JSON.stringify({
-  //       id: product.id,
-  //       name: product.name,
-  //       sku: product.sku,
-  //       price: product.price,
-  //       quantity: product.quantity,
-  //       status: product.status,
-  //       category: product.category,
-  //       supplier: product.supplier,
-  //     });
-
-  //     return (
-  //       <QRCodeHover
-  //         data={qrData}
-  //         title={`${product.name} QR`}
-  //         size={200}
-  //       />
-  //     );
-  //   },
-  // },
   {
     id: "actions",
     cell: ({ row }) => {
@@ -265,7 +239,6 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-// Debug log for columns - only log in development
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   console.log("Columns passed to useReactTable:", columns);
 }
