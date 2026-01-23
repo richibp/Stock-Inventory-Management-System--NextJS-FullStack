@@ -2,6 +2,7 @@ import React from "react";
 import { FaCheck } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { LuGitPullRequestDraft } from "react-icons/lu";
+import { MdOutlineDangerous } from "react-icons/md";
 import {
   Popover,
   PopoverTrigger,
@@ -18,15 +19,16 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type Status = {
-  value: "Available" | "Stock Out" | "Stock Low";
+  value: "Available" | "Stock Out" | "Stock Low" | "Critical Stock";
   label: string;
   icon: React.ReactNode;
 };
 
 const statuses: Status[] = [
   { value: "Available", label: "Disponible", icon: <FaCheck /> },
-  { value: "Stock Out", label: "Agotado", icon: <IoClose /> },
+  { value: "Critical Stock", label: "Stock Crítico", icon: <MdOutlineDangerous /> },
   { value: "Stock Low", label: "Bajo Stock", icon: <LuGitPullRequestDraft /> },
+  { value: "Stock Out", label: "Agotado", icon: <IoClose /> },
 ];
 
 type StatusDropDownProps = {
@@ -44,6 +46,8 @@ export function StatusDropDown({
     switch (status) {
       case "Available":
         return "text-green-600 bg-green-100";
+      case "Critical Stock":
+        return "text-rose-700 bg-rose-100";
       case "Stock Out":
         return "text-red-600 bg-red-100";
       case "Stock Low":
