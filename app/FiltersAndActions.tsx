@@ -70,10 +70,12 @@ export default function FiltersAndActions({
       
       // Calculate status dynamically based on quantity
       let calculatedStatus = "";
-      if (product.quantity > 20) {
+      if (product.quantity > 5) {
         calculatedStatus = "Available";
-      } else if (product.quantity > 0 && product.quantity <= 20) {
+      } else if (product.quantity > 3 && product.quantity <= 5) {
         calculatedStatus = "Stock Low";
+      } else if (product.quantity > 0 && product.quantity <= 3) {
+        calculatedStatus = "Critical Stock";
       } else {
         calculatedStatus = "Stock Out";
       }
