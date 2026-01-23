@@ -96,7 +96,7 @@ export default function BusinessInsightsPage() {
     ).length;
 
     const lowStockItems = allProducts.filter(
-      (product) => Number(product.quantity) > 3 && Number(product.quantity) <= 10
+      (product) => Number(product.quantity) > 3 && Number(product.quantity) <= 5
     ).length;
 
     const outOfStockItems = allProducts.filter(
@@ -170,7 +170,7 @@ export default function BusinessInsightsPage() {
             const qty = Number(product.quantity);
             if (qty === 0) status = "Agotado";
             else if (qty <= 3) status = "Crítico";
-            else if (qty <= 10) status = "Bajo";
+            else if (qty <= 5) status = "Bajo";
             else status = "Saludable";
         }
         statusMap.set(status, (statusMap.get(status) || 0) + 1);
@@ -216,7 +216,7 @@ export default function BusinessInsightsPage() {
 
     // Low stock products
     const lowStockProducts = allProducts
-      .filter((product) => Number(product.quantity) > 0 && Number(product.quantity) <= 10)
+      .filter((product) => Number(product.quantity) >= 0 && Number(product.quantity) <= 5)
       .sort((a, b) => Number(a.quantity) - Number(b.quantity))
       .slice(0, 6);
 
@@ -294,7 +294,7 @@ export default function BusinessInsightsPage() {
             description="Dinero invertido en material"
           />
           <AnalyticsCard
-            title="Stock Bajo (<10)"
+            title="Stock Bajo (<5)"
             value={analyticsData.lowStockItems}
             icon={AlertTriangle}
             iconColor="text-orange-600"
@@ -316,9 +316,9 @@ export default function BusinessInsightsPage() {
             <TabsTrigger value="trends">Productos Top</TabsTrigger>
             <TabsTrigger value="alerts">
                  Alertas de Compra
-                 {analyticsData.criticalStockItems > 0 && (
+                 {(analyticsData.criticalStockItems + analyticsData.outOfStockItems) > 0 && (
                     <Badge variant="destructive" className="ml-2 h-5 w-5 rounded-full p-0 flex justify-center items-center">
-                        {analyticsData.criticalStockItems}
+                        {analyticsData.criticalStockItems + analyticsData.outOfStockItems}
                     </Badge>
                  )}
             </TabsTrigger>
@@ -468,8 +468,8 @@ export default function BusinessInsightsPage() {
                     analyticsData.criticalStockItems > 0 ? "destructive" : "default"
                   }
                 >
-                  {analyticsData.criticalStockItems > 0
-                    ? `Faltan ${analyticsData.criticalStockItems} productos`
+                  {(analyticsData.criticalStockItems + analyticsData.outOfStockItems) > 0
+                    ? `Faltan ${analyticsData.criticalStockItems + analyticsData.outOfStockItems} productos`
                     : "Stock Sano"}
                 </Badge>
               </div>
