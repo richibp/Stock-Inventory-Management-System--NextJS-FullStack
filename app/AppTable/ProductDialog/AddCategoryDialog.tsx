@@ -178,7 +178,6 @@ export default function AddCategoryDialog() {
         <Input
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
-          placeholder="Nueva Categoría"
           className="mt-4"
         />
         <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">

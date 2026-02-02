@@ -178,7 +178,6 @@ export default function AddSupplierDialog() {
         <Input
           value={supplierName}
           onChange={(e) => setSupplierName(e.target.value)}
-          placeholder="Nuevo Proveedor"
           className="mt-4"
         />
         <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">

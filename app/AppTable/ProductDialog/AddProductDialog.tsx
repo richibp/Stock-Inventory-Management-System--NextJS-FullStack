@@ -31,8 +31,8 @@ const ProductSchema = z.object({
     .max(100, "El nombre del producto debe tener 100 caracteres o menos"),
   sku: z
     .string()
-    .min(1, "El SKU es requerido")
-    .regex(/^[a-zA-Z0-9-_]+$/, "El SKU debe ser alfanumérico"),
+    .min(1, "La referencia es requerida")
+    .regex(/^[a-zA-Z0-9-_]+$/, "La referencia debe ser alfanumérica"),
   quantity: z
     .number()
     .int("La cantidad debe ser un número entero")
