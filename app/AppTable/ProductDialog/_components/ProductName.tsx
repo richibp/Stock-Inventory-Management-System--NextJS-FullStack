@@ -20,7 +20,6 @@ export default function ProductName() {
           type="text"
           id="product-name"
           className="h-11 shadow-none"
-          placeholder="Laptop..."
         />
       </div>
 

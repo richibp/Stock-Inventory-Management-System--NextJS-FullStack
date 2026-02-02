@@ -172,7 +172,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "sku",
-    header: ({ column }) => <SortableHeader column={column} label="SKU" />,
+    header: ({ column }) => <SortableHeader column={column} label="Referencia" />,
   },
   {
     accessorKey: "quantity",

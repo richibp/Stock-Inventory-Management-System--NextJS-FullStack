@@ -199,7 +199,7 @@ export default function FiltersAndActions({
       <div className="flex justify-center">
         <div className="relative w-full max-w-xl">
           <Input
-            placeholder="Buscar por Nombre o SKU..."
+            placeholder="Buscar por Nombre o Referencia..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="h-10 pr-10 w-full"

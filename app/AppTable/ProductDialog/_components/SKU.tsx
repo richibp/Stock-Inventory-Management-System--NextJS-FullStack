@@ -28,8 +28,8 @@ export default function SKU({ allProducts }: SKUProps) {
     );
 
     if (isSkuTaken) {
-      setSkuError("El SKU ya está en uso. Intenta con uno nuevo.");
-      setError("sku", { type: "manual", message: "El SKU ya está en uso." });
+      setSkuError("La referencia ya está en uso. Intenta con una nueva.");
+      setError("sku", { type: "manual", message: "La referencia ya está en uso." });
     } else {
       setSkuError(null);
       clearErrors("sku");
@@ -39,14 +39,13 @@ export default function SKU({ allProducts }: SKUProps) {
   return (
     <div className="mt-5 flex flex-col gap-2">
       <Label htmlFor="sku" className="text-slate-600">
-        SKU
+        Referencia
       </Label>
       <Input
         {...register("sku")}
         type="text"
         id="sku"
         className="h-11 shadow-none"
-        placeholder="ABC001"
         onChange={handleSkuChange} // Validate SKU on change
       />
       {(skuError || errors.sku?.message) && (
