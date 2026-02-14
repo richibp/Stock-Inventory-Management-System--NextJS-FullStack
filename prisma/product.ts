@@ -6,6 +6,7 @@ export const createProduct = async (data: {
   name: string;
   sku: string;
   price: number;
+  purchasePrice: number;
   quantity: number;
   status: string;
   userId: string;
@@ -30,6 +31,7 @@ export const updateProduct = async (
     name?: string;
     sku?: string;
     price?: number;
+    purchasePrice?: number;
     quantity?: number;
     status?: string;
     categoryId?: string;

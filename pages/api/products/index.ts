@@ -20,7 +20,7 @@ export default async function handler(
   switch (method) {
     case "POST":
       try {
-        const { name, sku, price, quantity, status, categoryId, supplierId } =
+        const { name, sku, price, purchasePrice, quantity, status, categoryId, supplierId } =
           req.body;
 
         // Check if SKU already exists
@@ -38,6 +38,7 @@ export default async function handler(
             name,
             sku,
             price,
+            purchasePrice,
             quantity: BigInt(quantity) as any,
             status,
             userId,
@@ -61,6 +62,7 @@ export default async function handler(
           name: product.name,
           sku: product.sku,
           price: product.price,
+          purchasePrice: product.purchasePrice,
           quantity: Number(product.quantity),
           status: product.status,
           userId: product.userId,
@@ -119,6 +121,7 @@ export default async function handler(
           name,
           sku,
           price,
+          purchasePrice,
           quantity,
           status,
           categoryId,
@@ -131,6 +134,7 @@ export default async function handler(
             name,
             sku,
             price,
+            purchasePrice,
             quantity: BigInt(quantity) as any, // Convert to BigInt for database
             status,
             categoryId,
@@ -152,6 +156,7 @@ export default async function handler(
           name: updatedProduct.name,
           sku: updatedProduct.sku,
           price: updatedProduct.price,
+          purchasePrice: updatedProduct.purchasePrice,
           quantity: Number(updatedProduct.quantity), // Convert BigInt to Number
           status: updatedProduct.status,
           userId: updatedProduct.userId,
@@ -191,6 +196,7 @@ export default async function handler(
           name: updatedProduct.name,
           sku: updatedProduct.sku,
           price: updatedProduct.price,
+          purchasePrice: updatedProduct.purchasePrice,
           quantity: Number(updatedProduct.quantity),
           status: updatedProduct.status,
           userId: updatedProduct.userId,

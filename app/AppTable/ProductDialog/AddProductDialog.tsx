@@ -22,6 +22,7 @@ import ProductName from "./_components/ProductName";
 import SKU from "./_components/SKU";
 import Quantity from "./_components/Quantity";
 import Price from "./_components/Price";
+import PurchasePrice from "./_components/PurchasePrice";
 import { Product } from "@/app/types";
 
 const ProductSchema = z.object({
@@ -38,6 +39,7 @@ const ProductSchema = z.object({
     .int("La cantidad debe ser un número entero")
     .nonnegative("La cantidad no puede ser negativa"),
   price: z.number().nonnegative("El precio no puede ser negativo"),
+  purchasePrice: z.number().nonnegative("El precio de compra no puede ser negativo"),
 });
 
 interface ProductFormData {
@@ -45,6 +47,7 @@ interface ProductFormData {
   sku: string;
   quantity: number;
   price: number;
+  purchasePrice: number;
 }
 
 interface AddProductDialogProps {
@@ -63,6 +66,7 @@ export default function AddProductDialog({
       sku: "",
       quantity: 0,
       price: 0.0,
+      purchasePrice: 0.0,
     },
   });
 
@@ -94,6 +98,7 @@ export default function AddProductDialog({
         sku: selectedProduct.sku,
         quantity: selectedProduct.quantity,
         price: selectedProduct.price,
+        purchasePrice: selectedProduct.purchasePrice,
       });
       setSelectedCategory(selectedProduct.categoryId || "");
       setSelectedSupplier(selectedProduct.supplierId || "");
@@ -104,6 +109,7 @@ export default function AddProductDialog({
         sku: "",
         quantity: 0,
         price: 0.0,
+        purchasePrice: 0.0,
       });
       setSelectedCategory("");
       setSelectedSupplier("");
@@ -127,6 +133,7 @@ export default function AddProductDialog({
           supplierId: selectedSupplier,
           name: data.productName,
           price: data.price,
+          purchasePrice: data.purchasePrice,
           quantity: data.quantity,
           sku: data.sku,
           status,
@@ -159,6 +166,7 @@ export default function AddProductDialog({
           supplierId: selectedSupplier,
           name: data.productName,
           price: data.price,
+          purchasePrice: data.purchasePrice,
           quantity: data.quantity,
           sku: data.sku,
           status,
@@ -227,6 +235,7 @@ export default function AddProductDialog({
               <ProductName />
               <SKU allProducts={allProducts} />
               <Quantity />
+              <PurchasePrice />
               <Price />
               <div>
                 <label htmlFor="category" className="block text-sm font-medium">

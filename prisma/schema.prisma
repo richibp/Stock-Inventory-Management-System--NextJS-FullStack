@@ -47,16 +47,17 @@ model Permission {
 }
 
 model Product {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  categoryId String   @db.ObjectId
-  createdAt  DateTime @db.Date
-  name       String
-  price      Float
-  quantity   BigInt
-  sku        String   @unique
-  status     String
-  supplierId String   @db.ObjectId
-  userId     String   @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId    String   @db.ObjectId
+  createdAt     DateTime @db.Date
+  name          String
+  price         Float
+  purchasePrice Float    @default(0)
+  quantity      BigInt
+  sku           String   @unique
+  status        String
+  supplierId    String   @db.ObjectId
+  userId        String   @db.ObjectId
 }
 
 model Session {

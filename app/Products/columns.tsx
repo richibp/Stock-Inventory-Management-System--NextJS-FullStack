@@ -190,8 +190,13 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
+    accessorKey: "purchasePrice",
+    header: ({ column }) => <SortableHeader column={column} label="Precio Compra" />,
+    cell: ({ getValue }) => `€${getValue<number>().toFixed(2)}`,
+  },
+  {
     accessorKey: "price",
-    header: ({ column }) => <SortableHeader column={column} label="Precio" />,
+    header: ({ column }) => <SortableHeader column={column} label="Precio Venta" />,
     cell: ({ getValue }) => `€${getValue<number>().toFixed(2)}`,
   },
   {

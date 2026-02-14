@@ -6,6 +6,7 @@ export interface Product {
   name: string;
   sku: string;
   price: number;
+  purchasePrice: number;
   quantity: number;
   status?: string;
   createdAt: Date;
