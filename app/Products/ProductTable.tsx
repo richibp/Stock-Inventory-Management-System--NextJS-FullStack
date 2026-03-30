@@ -16,6 +16,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -172,14 +173,14 @@ export const ProductTable = React.memo(function ProductTable({
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableCell key={header.id}>
+                      <TableHead key={header.id}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      </TableCell>
+                      </TableHead>
                     ))}
                   </TableRow>
                 ))}
